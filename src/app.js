@@ -9,6 +9,8 @@ app.use("/api/followers", require("./routes/follower.routes"));
 app.use("/api/likes", require("./routes/like.routes"));
 app.use("/api/comments", require("./routes/comment.routes"));
 app.use("/api/chats", require("./routes/chat.routes"));
+app.use("/uploads", express.static("uploads"));
+
 
 
 module.exports = app;
