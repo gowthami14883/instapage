@@ -4,9 +4,33 @@ const User = require("../models/user.model");
 
 exports.followUser = async (req, res) => {
   try {
+    const followerId = req.user.user_id;
+    const followingId = req.params.userId;
+
+    if (followerId == followingId) {
+      return apiResponse.validationErrorResponse(
+        res,
+        "You cannot follow yourself"
+      );
+    }
+
+    const alreadyFollowing = await Follower.findOne({
+      where: {
+        follower_user_id: followerId,
+        following_user_id: followingId
+      }
+    });
+
+    if (alreadyFollowing) {
+      return apiResponse.validationErrorResponse(
+        res,
+        "You are already following this user"
+      );
+    }
+
     const follow = await Follower.create({
-      follower_user_id: req.user.user_id,
-      following_user_id: req.params.userId
+      follower_user_id: followerId,
+      following_user_id: followingId
     });
 
     return apiResponse.createdResponse(
@@ -19,6 +43,7 @@ exports.followUser = async (req, res) => {
   }
 };
 
+
 exports.unfollowUser = async (req, res) => {
   try {
     const deleted = await Follower.destroy({
@@ -29,13 +54,15 @@ exports.unfollowUser = async (req, res) => {
     });
 
     if (!deleted) {
-      return apiResponse.notFoundResponse(res, "Follow record not found");
+      return apiResponse.notFoundResponse(
+        res,
+        "You are not following this user"
+      );
     }
 
     return apiResponse.successResponse(
       res,
-      "User unfollowed successfully",
-      null
+      "User unfollowed successfully"
     );
   } catch (error) {
     return apiResponse.errorResponse(res, error.message);
@@ -68,7 +95,6 @@ exports.getFollowers = async (req, res) => {
   }
 };
 
-
 exports.getFollowing = async (req, res) => {
   try {
     const following = await Follower.findAll({
@@ -93,4 +119,3 @@ exports.getFollowing = async (req, res) => {
     return apiResponse.errorResponse(res, error.message);
   }
 };
-

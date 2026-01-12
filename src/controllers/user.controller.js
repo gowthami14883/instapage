@@ -9,6 +9,7 @@ const Follower = require("../models/follower.model");
 require("dotenv").config();
 
 exports.register = async (req, res) => {
+  
   try {
     const { username, email, password } = req.body;
 
@@ -142,43 +143,26 @@ exports.getUserFullProfile = async (req, res) => {
   try {
     const user = await User.findByPk(req.params.userId, {
       attributes: ["user_id", "username", "email"],
-
       include: [
         {
           model: Post,
-          attributes: ["post_id", "media_url", "caption", "createdAt"],
-          include: [
-            {
-              model: Like,
-              include: {
-                model: User,
-                attributes: ["user_id", "username"]
-              }
-            },
-            {
-              model: Comment,
-              include: {
-                model: User,
-                attributes: ["user_id", "username"]
-              }
-            }
-          ]
+          attributes: ["post_id", "media_url", "caption", "createdAt"]
         },
-
         {
           model: Follower,
           as: "Followers",
           include: {
             model: User,
+            as: "FollowerUser",
             attributes: ["user_id", "username"]
           }
         },
-
         {
           model: Follower,
           as: "Following",
           include: {
             model: User,
+            as: "FollowingUser",
             attributes: ["user_id", "username"]
           }
         }
