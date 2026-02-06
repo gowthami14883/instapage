@@ -7,6 +7,14 @@ const Chat = sequelize.define("Chat", {
     primaryKey: true,
     autoIncrement: true
   },
+  sender_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
+  receiver_id: {
+    type: DataTypes.INTEGER,
+    allowNull: false
+  },
   message: {
     type: DataTypes.STRING,
     allowNull: false

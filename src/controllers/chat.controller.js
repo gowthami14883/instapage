@@ -1,3 +1,4 @@
+const { Op } = require("sequelize");
 const apiResponse = require("../utils/apiResponse");
 const Chat = require("../models/chat.model");
 
@@ -9,11 +10,7 @@ exports.sendMessage = async (req, res) => {
       message: req.body.message
     });
 
-    return apiResponse.createdResponse(
-      res,
-      "Message sent",
-      message
-    );
+    return apiResponse.createdResponse(res, "Message sent", message);
   } catch (error) {
     return apiResponse.errorResponse(res, error.message);
   }
@@ -21,18 +18,20 @@ exports.sendMessage = async (req, res) => {
 
 exports.getChats = async (req, res) => {
   try {
+    const myId = req.user.user_id;
+    const otherId = req.params.userId;
+
     const chats = await Chat.findAll({
       where: {
-        sender_id: req.user.user_id,
-        receiver_id: req.params.userId
-      }
+        [Op.or]: [
+          { sender_id: myId, receiver_id: otherId },
+          { sender_id: otherId, receiver_id: myId }
+        ]
+      },
+      order: [["createdAt", "ASC"]]
     });
 
-    return apiResponse.successResponse(
-      res,
-      "Chats fetched",
-      chats
-    );
+    return apiResponse.successResponse(res, "Chats fetched", chats);
   } catch (error) {
     return apiResponse.errorResponse(res, error.message);
   }
