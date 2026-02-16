@@ -119,3 +119,32 @@ exports.getFollowing = async (req, res) => {
     return apiResponse.errorResponse(res, error.message);
   }
 };
+
+
+exports.removeFollower = async (req, res) => {
+  try {
+    const loggedInUserId = req.user.user_id;   // YOU
+    const followerUserId = req.params.userId; // PERSON YOU REMOVE
+
+    const deleted = await Follower.destroy({
+      where: {
+        follower_user_id: followerUserId,
+        following_user_id: loggedInUserId
+      }
+    });
+
+    if (!deleted) {
+      return apiResponse.notFoundResponse(
+        res,
+        "Follower not found"
+      );
+    }
+
+    return apiResponse.successResponse(
+      res,
+      "Follower removed successfully"
+    );
+  } catch (error) {
+    return apiResponse.errorResponse(res, error.message);
+  }
+};

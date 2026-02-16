@@ -4,16 +4,21 @@ const User = require("../models/user.model");
 
 exports.createPost = async (req, res) => {
   try {
-    if (!req.file) {
+    // Check if files exist
+    if (!req.files || req.files.length === 0) {
       return apiResponse.validationErrorResponse(
         res,
         "Media file is required"
       );
     }
 
+    // Collect all uploaded file paths
+    const mediaPaths = req.files.map(file => file.path);
+
+    // Create post with JSON array (MySQL JSON column)
     const post = await Post.create({
       user_id: req.user.user_id,
-      media_url: req.file.path,   
+      media_url: mediaPaths, // store array directly
       caption: req.body.caption
     });
 
@@ -23,11 +28,12 @@ exports.createPost = async (req, res) => {
       {
         post_id: post.post_id,
         user_id: post.user_id,
-        media_url: post.media_url,
+        media_url: post.media_url, // already array
         caption: post.caption,
         createdAt: post.createdAt
       }
     );
+
   } catch (error) {
     return apiResponse.errorResponse(res, error.message);
   }
@@ -51,12 +57,27 @@ exports.getMyPosts = async (req, res) => {
 
 exports.getAllPosts = async (req, res) => {
   try {
-    const posts = await Post.findAll(); // Fetch all posts
-    return apiResponse.successResponse(res, "All posts fetched successfully", posts);
+    const posts = await Post.findAll({
+      include: [
+        {
+          model: User,
+          attributes: ["user_id", "username", "profilepic"]
+        }
+      ],
+      order: [["createdAt", "DESC"]]
+    });
+
+    return apiResponse.successResponse(
+      res,
+      "All posts fetched successfully",
+      posts
+    );
   } catch (error) {
     return apiResponse.errorResponse(res, error.message);
   }
 };
+
+
 
 exports.updatePost = async (req, res) => {
   try {

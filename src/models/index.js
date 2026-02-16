@@ -107,6 +107,11 @@ Chat.belongsTo(User, {
 });
 
 
+Post.belongsTo(User, { foreignKey: "user_id" });
+User.hasMany(Post, { foreignKey: "user_id" });
+
+
+
 const db = {};
 
 db.sequelize = sequelize;

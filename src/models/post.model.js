@@ -11,7 +11,11 @@ const Post = sequelize.define("Post", {
     type: DataTypes.STRING
   },
   media_url: {
-    type: DataTypes.STRING,
+    type: DataTypes.JSON,
+    allowNull: false
+  },
+  user_id: {   // ✅ ADD THIS
+    type: DataTypes.INTEGER,
     allowNull: false
   }
 }, {
@@ -20,3 +24,4 @@ const Post = sequelize.define("Post", {
 });
 
 module.exports = Post;
+
